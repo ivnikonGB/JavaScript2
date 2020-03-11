@@ -1,19 +1,24 @@
+const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+
 class ProductsList {
     constructor(container = '.products') {
         this.container = container;
         this.goods = [];
         this.allProducts = [];
-        this._fetchProducts();
+        this._getProducts()
+            .then(data => {
+                this.goods = [...data];
+                this.render();
+            });
     }
 
-    _fetchProducts() {
-        this.goods = [
-                {id: 1, title: 'Notebook', price: 2000},
-                {id: 2, title: 'Mouse', price: 20},
-                {id: 3, title: 'Keyboard', price: 200},
-                {id: 4, title: 'Gamepad', price: 50},
-            ];
-    }
+    _getProducts() {
+        return fetch(`${API}/catalogData.json`)
+            .then(result => result.json())
+            .catch(error => {
+                console.log(error);
+            })
+    }    
 
     render() {
         const block = document.querySelector(this.container);
@@ -35,8 +40,8 @@ class ProductsList {
 
 class ProductItem {
     constructor(product, img="http://placeimg.com/200/150/tech") {
-        this.id = product.id;
-        this.title = product.title;
+        this.id = product.id_product;
+        this.title = product.product_name;
         this.price = product.price;
         this.img = img;
     }
