@@ -1,5 +1,12 @@
 const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
 
+let getRequest = url => {
+    fetch(url)
+        .then(result => result.json())
+        .then(result => console.log(JSON.stringify(result)))
+        .catch(error => console.log('Error'))
+}
+
 class ProductsList {
     constructor(container = '.products') {
         this.container = container;
@@ -57,8 +64,7 @@ class ProductItem {
 }
 
 let list = new ProductsList();
-list.render();
-console.log(list.getSumm());
+getRequest(`${API}/catalogData.json`);
 
 class Cart {
     constructor() {};
