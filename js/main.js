@@ -34,6 +34,10 @@ class ProductsList {
             this.allProducts.push(productObj);
             block.insertAdjacentHTML('beforeend', productObj.render());
         }
+        let buttons = block.querySelectorAll(".buy-btn");
+        for(let btn of buttons) {
+            btn.addEventListener('click', evt => cart.addProduct(evt.target.parentNode.dataset.id))
+        }
     }
 
     getSumm() {
@@ -42,6 +46,13 @@ class ProductsList {
             summ += product.price;
         }
         return summ;
+    }
+
+    getProductById(productId) {
+        // console.log(list);
+        for(let product of list.allProducts) {
+            if(product.id == productId) return product;
+        }
     }
 }
 
@@ -63,20 +74,51 @@ class ProductItem {
     }
 }
 
-let list = new ProductsList();
-getRequest(`${API}/catalogData.json`);
-
-class Cart {
-    constructor() {};
-    addProduct(productId) {};
-    clearCart() {};
-    checkoutCart() {};
-    getSumm() {};
-    render() {};
-}
-
 class CartItem {
-    constructor() {};
+    constructor(productId) {
+        let item = list.getProductById(productId);
+        this.id_product = item.id;
+        this.product_name = item.title;
+        this.price = item.price;
+        this.quantity = 1;
+    };
     removeFromCart(productId) {};
     render() {};
 }
+
+class Cart {
+    constructor() {
+        this.amount = 0;
+        this.countGoods = 0;
+        this.contents = [];
+    }
+
+    getItemById(productId) {
+        for(let item of cart.contents) {
+            if(item.id_product == productId) return item;
+        }
+        return -1;
+    }
+
+    addProduct(productId) {
+        this.countGoods++;
+        document.getElementById('btn-cart').textContent = `(${this.countGoods})`;
+        let cartItem = this.getItemById(productId);
+        if( cartItem == -1) {
+            cartItem = new CartItem(productId);
+            this.contents.push(cartItem);
+        } else {
+            cartItem.quantity++;
+        }
+        this.amount += cartItem.price; 
+    }
+
+    clearCart() {}
+    checkoutCart() {}
+    getSumm() {}
+    render() {}
+}
+
+let list = new ProductsList();
+getRequest(`${API}/catalogData.json`);
+let cart = new Cart();
