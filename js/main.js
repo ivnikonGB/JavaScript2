@@ -82,8 +82,13 @@ class CartItem {
         this.price = item.price;
         this.quantity = 1;
     };
-    removeFromCart(productId) {};
-    render() {};
+    
+    render() {
+        return `<div class="cart-item" data-id="${this.id_product}">
+                ${this.product_name} ${this.price} RUB - ${this.quantity} pcs.
+                <a href="#" class="cart-item-remove">X</a>
+                </div>`
+    }
 }
 
 class Cart {
@@ -91,32 +96,65 @@ class Cart {
         this.amount = 0;
         this.countGoods = 0;
         this.contents = [];
+        document.querySelector('.btn-cart').addEventListener('click', evt => {
+            document.querySelector('.cart-container').classList.toggle('visually-hidden');
+        });
     }
 
     getItemById(productId) {
-        for(let item of cart.contents) {
-            if(item.id_product == productId) return item;
+        for(let item in cart.contents) {
+            if(cart.contents[item].id_product == productId) return item;
         }
         return -1;
     }
 
     addProduct(productId) {
         this.countGoods++;
-        document.getElementById('btn-cart').textContent = `(${this.countGoods})`;
-        let cartItem = this.getItemById(productId);
-        if( cartItem == -1) {
+        this.counterOnButton(this.countGoods);
+        let cartItemIndex = this.getItemById(productId);
+        let cartItem;
+        
+        if( cartItemIndex == -1) {
             cartItem = new CartItem(productId);
             this.contents.push(cartItem);
         } else {
+            cartItem = this.contents[cartItemIndex];
             cartItem.quantity++;
         }
         this.amount += cartItem.price; 
+        this.render();
     }
 
-    clearCart() {}
-    checkoutCart() {}
-    getSumm() {}
-    render() {}
+    removeProduct(productId) {
+        console.log(productId);
+        let indexToRemove = this.getItemById(productId);
+        if( indexToRemove == -1) return;
+        let itemToRemove = this.contents[indexToRemove];
+        if(itemToRemove.quantity == 1) {
+            this.contents.splice(indexToRemove, 1);
+        } else {
+            itemToRemove.quantity--;  
+        }
+        this.counterOnButton(--this.countGoods);
+        this.render();
+    }
+
+    counterOnButton(quantity) {
+        let btn = document.getElementById('btn-cart');
+        btn.textContent = quantity ? `(${quantity})` : '';
+    }
+
+    render() {
+        let block = document.querySelector('.cart');
+        block.innerHTML = '';
+        for(let item of cart.contents) {
+            block.insertAdjacentHTML('beforeend', item.render());
+        }
+        let delBtns = document.querySelectorAll('.cart-item-remove');
+        for(let btn of delBtns) {
+            btn.addEventListener('click', evt => cart.removeProduct(evt.target.parentNode.dataset.id));
+        }
+    }
 }
 
 let list = new ProductsList();
